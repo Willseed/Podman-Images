@@ -2,7 +2,12 @@
 FROM registry.access.redhat.com/ubi8/ubi:latest
 
 # upgrade package and install curl tool
-RUN dnf -y upgrade && dnf -y install curl
+RUN dnf -y upgrade && \
+    dnf -y install curl && \
+    dnf -y install wget
+
+# set ll command
+RUN echo "alias ll='ls -l --color=auto'" >> /etc/bashrc
 
 # set node version environment
 ENV NODE_VERSION=18.14.2
@@ -30,8 +35,14 @@ RUN node --version
 # check npm version
 RUN npm --version
 
-# install jdk
-RUN dnf install -y java-17-openjdk.x86_64
+# get openjdk 17
+RUN wget https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_linux_hotspot_17.0.6_10.tar.gz
 
-# install maven
-RUN dnf install -y maven
+# unzip tar.gz
+RUN tar zxvf OpenJDK17U-jdk_x64_linux_hotspot_17.0.6_10.tar.gz
+
+# set java home
+ENV JAVA_HOME=/jdk-17.0.6+10
+
+# set java environment variable
+ENV PATH=$PATH:/jdk-17.0.6+10/bin
